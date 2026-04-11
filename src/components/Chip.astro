@@ -1,0 +1,20 @@
+---
+interface Props {
+  label: string;
+  /** Optional accent variant for active/selected state */
+  active?: boolean;
+}
+
+const { label, active = false } = Astro.props;
+---
+
+<span
+  class:list={[
+    'inline-flex items-center text-xs px-2.5 py-1 rounded-full border font-medium',
+    active
+      ? 'bg-[var(--accent)] border-[var(--accent)] text-white'
+      : 'bg-[var(--bg-subtle)] border-[var(--border)] text-[var(--text-muted)]',
+  ]}
+>
+  {label}
+</span>

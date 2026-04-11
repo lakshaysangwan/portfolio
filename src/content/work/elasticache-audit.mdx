@@ -1,0 +1,97 @@
+---
+title: "Cutting $3,400/year from ElastiCache with a cluster-wide audit"
+description: "Audited 15+ Redis clusters, upgraded from 6.2.6 to 7.1.0 to avoid Extended Support fees, right-sized instances based on actual usage, and fixed cache anti-patterns in application code."
+date: 2025-03-01
+role: "Product Engineer"
+timeframe: "Q1 2025"
+stack: ["AWS ElastiCache", "Redis", "Spring Boot", "CloudWatch"]
+teamSize: 1
+category: "infra"
+impact: "$3,400+/yr saved"
+featured: true
+draft: false
+---
+
+## Context
+
+Digiicampus runs 15+ ElastiCache Redis clusters across production
+environments. They'd grown organically over years — each new module
+that needed caching got its own cluster, sized at launch based on
+guesses about load. Nobody had looked at the whole fleet in one pass.
+
+Two things prompted the audit: AWS announced that Redis 6.2.6 would
+enter Extended Support (with a significant surcharge) if not upgraded,
+and a general cost-review pass flagged ElastiCache as a large,
+underscrutinized line item.
+
+## Problem
+
+The audit had to answer:
+
+1. Are any clusters oversized for their actual load?
+2. Are any clusters running versions that will incur Extended Support fees?
+3. Is the application code using Redis well, or are there anti-patterns
+   silently burning memory and CPU?
+
+Without a baseline of per-cluster CPU, memory, key count, and eviction
+rate over a long enough window to smooth out daily/weekly cycles, any
+"fix" would be guesswork. And the cost of being wrong is real — a
+downsized cluster that can't handle a Monday morning spike is a
+production incident.
+
+## Approach
+
+**Phase 1: Measurement.** Pulled CloudWatch metrics for every cluster
+over a 30-day window — CPU utilization, memory usage, evicted keys,
+network bytes in/out, connected clients. Cross-referenced with the
+instance type's published limits to compute headroom.
+
+**Phase 2: Version upgrades.** Every cluster on 6.2.6 went to 7.1.0 in
+a rolling upgrade. This is the safe win — no cost from downsizing, just
+avoiding the future Extended Support premium.
+
+**Phase 3: Right-sizing.** Clusters with sustained CPU well under 10%
+and memory well under 30% were candidates for downsizing. I built a
+simple decision rule: if p95 CPU < 20% and p95 memory < 40% on the
+current instance for 30 days straight, move one step down the instance
+family.
+
+**Phase 4: Code audit.** While I was in there, I grep'd the application
+for Redis anti-patterns. Two showed up:
+
+- `@CacheEvict(allEntries = true)` on high-traffic methods, blowing away
+  entire caches instead of targeted evictions.
+- Raw `KEYS` commands used for cleanup — O(n) blocking operations in
+  a production hot path.
+
+## Implementation
+
+Version upgrades went through dev → staging → prod with health checks
+at every step. ElastiCache's in-place upgrade worked cleanly for the
+7.x move; no client code changes required.
+
+Right-sizing was executed one cluster at a time, with a 48-hour
+observation window after each change. Nothing was batched — batching
+would make rollback harder and hide which change caused any regression.
+
+The anti-pattern fixes went in as separate PRs, tagged to the audit, so
+the savings from code changes could be attributed separately from the
+savings from infrastructure changes.
+
+## Impact
+
+- 15+ clusters upgraded from Redis 6.2.6 → 7.1.0, avoiding Extended
+  Support surcharge.
+- Several clusters right-sized to smaller instance families.
+- Two application-level anti-patterns fixed.
+- **$3,400+/year in ongoing savings** from this work, plus a smaller
+  parallel CloudFront cleanup for distributions with negligible traffic.
+
+Beyond the dollar number, the audit produced a baseline. Every cluster
+now has known p95 CPU and memory, so the next conversation about
+sizing starts from numbers instead of guesses.
+
+What I'd do differently: I would have written the decision rule as a
+script that runs monthly and flags drift, instead of a one-time audit.
+The next time someone adds a cluster and sizes it by gut feel, there's
+nothing catching it.

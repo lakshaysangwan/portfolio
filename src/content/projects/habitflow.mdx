@@ -1,0 +1,61 @@
+---
+name: "HabitFlow"
+tagline: "A habit tracker with three tracking modes and server-side-only timestamps."
+stack: ["Cloudflare Workers", "D1", "Hono", "Drizzle ORM", "React", "Vite"]
+status: "live"
+liveUrl: "https://habitflow.uk"
+codeUrl: null
+featured: true
+draft: false
+---
+
+## What it does
+
+Track habits in three modes:
+
+- **Binary.** Did you do the thing today? Yes or no.
+- **Stopwatch.** How long did you do it for? Start and stop a timer.
+- **Countdown.** Commit to N minutes; the timer counts down.
+
+See streaks, completion rates, and a calendar view of history.
+
+## Why I built it
+
+Every habit tracker I'd tried forced everything into the "did you do
+it today" binary. That works for flossing. It doesn't work for "I want
+to read 30 minutes a day" or "I want to practice guitar for an hour."
+Those are time-based habits and they need time-based tracking.
+
+I also wanted an excuse to build something properly on the Cloudflare
+stack end-to-end.
+
+## Stack & decisions
+
+**Cloudflare Workers + D1.** Single stack, single deploy, free tier
+generous enough for a personal-scale app. Workers for the API, D1
+(SQLite-on-the-edge) for persistence.
+
+**Hono.** Small, fast, TypeScript-native web framework that feels right
+on Workers. Express-style routing without the Express baggage.
+
+**Drizzle ORM.** Typed SQL without the runtime cost of a heavy ORM.
+Migrations feel like code, not like magic.
+
+**React + Vite frontend, shadcn/ui components.** Boring is good. No
+custom design system for a side project.
+
+**Server-side-only timestamps.** Every time-based event — start a
+timer, stop a timer, mark complete — is stamped by the server, not the
+client. This is non-negotiable for a habit tracker. If the client could
+write "I meditated yesterday," streaks become meaningless.
+
+## What I learned
+
+- D1's free tier is more than enough for personal apps, but the
+  eventually-consistent read replicas matter once you cross regions.
+- The server-side-timestamp rule is simple to state and subtly annoying
+  to enforce — every client action has to round-trip before the UI can
+  update, which means optimistic UI needs careful rollback.
+- Three tracking modes was the right call. I'd have been tempted to
+  start with one and "add the others later," but the data model is
+  much cleaner when all three are first-class from day one.

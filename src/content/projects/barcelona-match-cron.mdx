@@ -1,0 +1,60 @@
+---
+name: "Barcelona match cron"
+tagline: "An AWS Lambda that emails me when a new FC Barcelona full-match replay shows up."
+stack: ["Java", "Spring Boot", "AWS Lambda", "EventBridge", "Supabase Postgres"]
+status: "live"
+liveUrl: null
+codeUrl: "https://github.com/lakshaysangwan/barcelona-match-cron"
+featured: false
+draft: false
+---
+
+## What it does
+
+Every hour, a Lambda wakes up, scrapes a replay site for new Barcelona
+match uploads, checks them against a Postgres record of what's already
+been notified, and emails me about anything new. Fully serverless,
+runs for free.
+
+## Why I built it
+
+I watch Barcelona games on delay. Full-match replays show up on
+third-party sites at unpredictable times, and I was tired of checking
+manually. "Write a cron job" is almost always the right answer when
+you catch yourself doing something repetitive on a browser.
+
+It also turned out to be a good excuse to learn the Lambda deployment
+model from the Java side — a language not known for being friendly to
+serverless cold starts.
+
+## Stack & decisions
+
+**AWS Lambda + EventBridge.** EventBridge rule fires hourly, Lambda
+runs the job. Both well within free tier at this invocation volume
+(~720 invocations/month).
+
+**Spring Boot on Lambda.** Spring Boot has a reputation for being
+heavy on Lambda due to cold starts. In practice, with 512MB of memory
+and a 5-minute timeout, cold starts are annoying but acceptable for a
+job that runs hourly without user-facing latency requirements.
+
+**Supabase Postgres.** Free-tier Postgres with connection pooling.
+Store one row per match we've seen, to prevent duplicate notifications.
+Using Supabase over DynamoDB because SQL is the right model for "have
+I seen this ID before?" and the operational overhead is zero.
+
+**Gmail SMTP for notifications.** The laziest email pipeline that works.
+An app-specific password and done. For a personal notification system,
+SES would be overkill.
+
+**AWS Budget alert at $0.** If anything breaks out of the free tier,
+I want to know immediately. This has saved me twice.
+
+## What I learned
+
+- Serverless cron is the sweet spot for personal automation. No server
+  to maintain, no uptime to worry about, free at this scale.
+- Spring Boot on Lambda is viable if you're willing to pay the cold
+  start cost. For a background cron, who cares.
+- A `$0` budget alert is the single most useful AWS feature for hobby
+  projects.

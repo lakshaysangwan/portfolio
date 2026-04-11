@@ -1,0 +1,48 @@
+---
+name: "Careers360 scrapper"
+tagline: "An early-career Spring Boot project: scrape college and course data from Careers360 into a local MySQL database."
+stack: ["Java", "Spring Boot", "Spring Data JPA", "Jsoup", "MySQL"]
+status: "archived"
+liveUrl: null
+codeUrl: "https://github.com/lakshaysangwan/careers360Scrapper"
+featured: false
+draft: false
+---
+
+## What it does
+
+Crawls Careers360 for Indian college listings — names, locations,
+courses, fee structures — and persists them into a local MySQL
+database for further analysis. REST APIs expose the scraped data.
+
+## Why I built it
+
+This is one of my earliest Spring Boot projects. I wanted to learn the
+framework properly — JPA entities, repositories, service layers, REST
+controllers — and scraping a data source with real-world messiness
+was more interesting than building a TODO app.
+
+## Stack & decisions
+
+**Spring Boot + JPA.** The whole point was to learn these. I modeled
+colleges and courses as entities with relationships, wrote queries
+through the repository layer, and exposed read endpoints through
+controllers.
+
+**Jsoup.** Standard choice for HTML parsing in the JVM world. Selector
+syntax that looks like CSS, forgiving about malformed markup.
+
+**MySQL.** Local database, no cloud involved. For a learning project,
+simplicity wins.
+
+## What I learned
+
+This project is archived now — it's a snapshot of where I was a few
+years ago, not something I'd ship today. Looking back, the things I'd
+do differently are the usual "early Spring Boot" lessons: less logic
+in controllers, more defensive handling of the source site's HTML
+changes, and rate-limiting that respects the source.
+
+I keep it up because it's an honest record of how I learned Spring,
+and because the next time I need to scrape something, starting from a
+working project is faster than starting from a tutorial.

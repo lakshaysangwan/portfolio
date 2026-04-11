@@ -1,0 +1,110 @@
+---
+title: "A federated SSO hub for cross-tenant account linking"
+description: "Designed a centralized hub that lets users link accounts across independent tenants using union-find transitive closure and HMAC-signed JWT flows."
+date: 2025-11-01
+role: "Product Engineer"
+timeframe: "2025"
+stack: ["Java", "Spring Boot", "JWT", "HMAC", "MySQL"]
+teamSize: 1
+category: "architecture"
+impact: "Cross-tenant identity federation"
+featured: true
+draft: false
+---
+
+## Context
+
+Digiicampus runs each institution as an isolated tenant. That isolation
+is the product — institutions own their data, their branding, their
+user base. But real users cross boundaries. A student who transfers from
+one affiliated college to another, a faculty member who teaches at two
+institutions, an alum who becomes a guest lecturer somewhere else —
+these people need a way to reach their data without creating a new
+account and losing history.
+
+The question: how do you link identities across strictly isolated
+tenants without punching holes in the isolation?
+
+## Problem
+
+A naive approach — a shared users table — defeats the point of
+multi-tenancy. A federation protocol like SAML or OIDC between every
+pair of tenants scales quadratically and doesn't compose when users
+belong to three or more tenants.
+
+I needed a design where:
+
+1. Each tenant remains the authoritative source for its own users.
+2. A user can declare "this account and that account are me" and the
+   system recognizes the link transitively (if A = B and B = C, then
+   A = C).
+3. No tenant can forge a link claim on behalf of another tenant.
+4. Cache invalidation propagates correctly when links change.
+5. The link graph is queryable efficiently — "give me all accounts
+   connected to this one" should be O(α(n)) in the common case.
+
+## Approach
+
+The centerpiece is a **union-find (disjoint-set) data structure** living
+in a centralized hub service. Each linked account gets a node; linking
+two accounts does a union; querying "are these the same person?" is a
+find. Path compression and union-by-rank keep operations effectively
+constant-time, and the transitive closure property is free.
+
+**Auth between tenants and the hub** uses **HMAC-signed JWTs**. Each
+tenant holds a shared secret with the hub (rotated out-of-band). When
+Tenant A wants to assert "user X on my side is the same as user Y on
+Tenant B," it signs a claim with its HMAC key. The hub verifies the
+signature, verifies that Tenant B has already acknowledged the link
+from its own side (two-sided handshake), and then commits the union.
+
+**Cache invalidation** rides on **SQS**. When a link is committed or
+broken, the hub publishes an invalidation message. Each tenant's
+identity cache subscribes and evicts the affected entries. This is
+eventually consistent, which is acceptable because the link graph
+changes rarely and reads are hot.
+
+**Why I rejected the alternatives:**
+
+- **Pairwise OIDC federation.** O(n²) trust relationships, no transitive
+  closure.
+- **A shared users table.** Violates tenant isolation.
+- **A blockchain-style append-only log.** Cute; wildly over-engineered
+  for a system with a trusted centralized operator.
+- **Building transitive closure in SQL at query time.** Correct but
+  slow, and cache invalidation becomes a nightmare with recursive CTEs.
+
+## Implementation
+
+The hub exposes three primary endpoints:
+
+- `POST /links` — assert a link between two account references.
+- `DELETE /links/{id}` — break a link (this is the interesting one —
+  breaking a link in a union-find means rebuilding the affected set).
+- `GET /linked/{accountRef}` — return all accounts transitively linked.
+
+The break operation is O(n) in the size of the connected component
+because union-find doesn't natively support deletion — you rebuild the
+component from the remaining edges. In practice, components are small
+(usually 2–4 accounts), so this is fine. If it ever isn't, the fallback
+is link-cut trees, but that's premature.
+
+Tenant-side integration is a thin client library that wraps the HMAC
+signing and SQS subscription. New tenants onboard by generating a
+secret, registering with the hub, and pulling in the library.
+
+## Impact
+
+- Users with identities on multiple tenants experience a single
+  continuous history.
+- Tenant isolation is preserved — no tenant can read another's user
+  data; they can only assert and query links.
+- The hub is the only service that knows about the link graph; tenants
+  stay blissfully unaware of each other's user tables.
+- Onboarding a new tenant to federation is a config change plus a
+  secret exchange, not a protocol negotiation.
+
+What I'd do differently: the two-sided handshake adds latency to every
+link operation. For high-trust tenant pairs, a one-sided assertion with
+an audit trail would be enough. I'd make the handshake requirement a
+per-tenant-pair policy.

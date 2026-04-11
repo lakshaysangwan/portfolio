@@ -1,0 +1,130 @@
+---
+import Base from '../../layouts/Base.astro';
+import Chip from '../../components/Chip.astro';
+import { getCollection } from 'astro:content';
+
+const entries = await getCollection('work', (e) => !e.data.draft);
+const sorted = entries.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const categories = ['all', 'infra', 'security', 'architecture', 'feature'] as const;
+---
+
+<Base
+  title="Work"
+  description="Case studies from my work as a Product Engineer at Digiicampus — a multi-tenant platform for educational institutions."
+>
+  <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-12 sm:py-16">
+    <div class="max-w-[680px] mb-10">
+      <h1 class="text-3xl font-semibold text-[var(--text)] mb-4">Work</h1>
+      <p class="text-[var(--text-muted)] leading-relaxed">
+        Case studies from my work as a Product Engineer at Digiicampus —
+        a multi-tenant platform for educational institutions. Each write-up
+        covers the problem, the approach, and the measurable outcome.
+      </p>
+    </div>
+
+    <!-- Filter chips -->
+    <div class="flex flex-wrap gap-2 mb-8" role="group" aria-label="Filter by category">
+      {categories.map((cat) => (
+        <button
+          data-filter={cat}
+          class:list={[
+            'filter-chip inline-flex items-center text-xs px-2.5 py-1 rounded-full border font-medium transition-colors cursor-pointer',
+            cat === 'all'
+              ? 'bg-[var(--accent)] border-[var(--accent)] text-white'
+              : 'bg-[var(--bg-subtle)] border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent)] hover:text-[var(--text)]',
+          ]}
+          aria-pressed={cat === 'all' ? 'true' : 'false'}
+        >
+          {cat.charAt(0).toUpperCase() + cat.slice(1)}
+        </button>
+      ))}
+    </div>
+
+    <!-- Work entries -->
+    <div class="divide-y divide-[var(--border)]" id="work-list">
+      {sorted.map((entry) => (
+        <article
+          data-category={entry.data.category}
+          class="work-entry py-6 group"
+        >
+          <a href={`/work/${entry.id}`} class="block no-underline">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+              <div class="min-w-0">
+                <h2 class="text-base font-medium text-[var(--text)] group-hover:text-[var(--accent)] transition-colors mb-1.5 leading-snug">
+                  {entry.data.title}
+                </h2>
+                <p class="text-sm text-[var(--text-muted)] leading-relaxed mb-0">
+                  {entry.data.description}
+                </p>
+              </div>
+              <div class="flex sm:flex-col items-center sm:items-end gap-2 shrink-0">
+                <span class="text-xs text-[var(--text-muted)] whitespace-nowrap">
+                  {entry.data.timeframe}
+                </span>
+                <Chip label={entry.data.category} />
+              </div>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .work-entry {
+    transition: opacity 100ms ease;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var chips = document.querySelectorAll('.filter-chip');
+    var entries = document.querySelectorAll('.work-entry');
+
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var filter = chip.dataset.filter;
+
+        // Update active chip styles immediately
+        chips.forEach(function (c) {
+          var isActive = c === chip;
+          c.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          if (isActive) {
+            c.classList.add('bg-[var(--accent)]', 'border-[var(--accent)]', 'text-white');
+            c.classList.remove('bg-[var(--bg-subtle)]', 'border-[var(--border)]', 'text-[var(--text-muted)]');
+          } else {
+            c.classList.remove('bg-[var(--accent)]', 'border-[var(--accent)]', 'text-white');
+            c.classList.add('bg-[var(--bg-subtle)]', 'border-[var(--border)]', 'text-[var(--text-muted)]');
+          }
+        });
+
+        // Fade out visible entries
+        entries.forEach(function (entry) {
+          if (entry.style.display !== 'none') {
+            entry.style.opacity = '0';
+          }
+        });
+
+        // After fade-out, swap visibility and fade back in
+        setTimeout(function () {
+          entries.forEach(function (entry) {
+            var show = filter === 'all' || entry.dataset.category === filter;
+            entry.style.display = show ? '' : 'none';
+            entry.style.opacity = show ? '0' : '';
+          });
+
+          // Trigger reflow so the opacity transition fires
+          void document.getElementById('work-list').offsetHeight;
+
+          entries.forEach(function (entry) {
+            if (entry.style.display !== 'none') {
+              entry.style.opacity = '1';
+            }
+          });
+        }, 100);
+      });
+    });
+  })();
+</script>

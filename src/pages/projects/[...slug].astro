@@ -1,0 +1,92 @@
+---
+import Prose from '../../layouts/Prose.astro';
+import Chip from '../../components/Chip.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('projects', (e) => !e.data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const ogImage = `/og/projects-${entry.id}.png`;
+---
+
+<Prose
+  title={entry.data.name}
+  description={entry.data.tagline}
+  ogImage={ogImage}
+>
+  <!-- Back link -->
+  <a
+    href="/projects"
+    class="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors mb-8 no-underline"
+  >
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m15 18-6-6 6-6"/>
+    </svg>
+    All projects
+  </a>
+
+  <!-- Header -->
+  <header class="mb-10">
+    <div class="flex flex-wrap items-center gap-2 mb-4">
+      <Chip
+        label={entry.data.status === 'live' ? 'Live' : entry.data.status === 'archived' ? 'Archived' : 'WIP'}
+        active={entry.data.status === 'live'}
+      />
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-semibold text-[var(--text)] leading-tight mb-3">
+      {entry.data.name}
+    </h1>
+    <p class="text-[var(--text-muted)] text-lg leading-relaxed mb-4">
+      {entry.data.tagline}
+    </p>
+
+    <!-- Links -->
+    <div class="flex flex-wrap gap-3">
+      {entry.data.liveUrl && (
+        <a
+          href={entry.data.liveUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-[var(--accent)] text-white hover:opacity-80 transition-opacity no-underline font-medium"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/>
+          </svg>
+          Live site
+        </a>
+      )}
+      {entry.data.codeUrl && (
+        <a
+          href={entry.data.codeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md border border-[var(--border)] text-[var(--text)] hover:border-[var(--accent)] transition-colors no-underline"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+          Code
+        </a>
+      )}
+    </div>
+
+    <!-- Stack -->
+    <div class="flex flex-wrap gap-2 mt-5">
+      {entry.data.stack.map((tech) => (
+        <Chip label={tech} />
+      ))}
+    </div>
+  </header>
+
+  <!-- MDX content -->
+  <div class="prose">
+    <Content />
+  </div>
+</Prose>

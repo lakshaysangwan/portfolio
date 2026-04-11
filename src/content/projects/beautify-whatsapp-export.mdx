@@ -1,0 +1,55 @@
+---
+name: "BeautifyWhatsAppExport"
+tagline: "Turn a raw WhatsApp chat export into a single self-contained HTML page that looks like the real thing."
+stack: ["Python", "HTML", "CSS", "JavaScript"]
+status: "live"
+liveUrl: null
+codeUrl: "https://github.com/lakshaysangwan/BeautifyWhatsAppExport"
+featured: false
+draft: false
+---
+
+## What it does
+
+Point it at a WhatsApp chat export folder. Get back a single HTML file
+that renders the conversation in WhatsApp's actual UI — real message
+bubbles, tails, date separators, inline media, clickable links,
+full-screen image viewer. Works without an internet connection once
+generated.
+
+```bash
+python main.py "./WhatsApp Chat" --you "Lakshay" --embed-images
+```
+
+## Why I built it
+
+WhatsApp's "export chat" feature hands you a zip file with a `.txt`
+transcript and a bunch of media files. Useful if you're a computer.
+Unreadable if you're trying to show someone a conversation. I wanted
+to hand someone a single file that felt like opening WhatsApp itself.
+
+## Stack & decisions
+
+**Python standard library only.** No pip install, no virtualenv. The
+parsing is regex over the export format; the HTML generation is
+templated string assembly. Zero dependencies means this still runs in
+five years.
+
+**Inline everything.** CSS, JavaScript, and optionally images are
+embedded directly into the output HTML. One file, fully portable. You
+can email it, drop it on a USB stick, open it on any browser.
+
+**Pixel-matched WhatsApp UI.** Message bubble tails, the exact green,
+the system message pills, date separators — reproduced in pure CSS.
+This was the fun part.
+
+## What I learned
+
+- "Zero dependencies" is a real feature for a tool that people will
+  use once every six months. Every dependency is a reason it won't
+  work when they come back to it.
+- The WhatsApp export format is surprisingly well-behaved for regex
+  parsing, but multi-line messages and system notifications need
+  careful handling.
+- Embedding base64 images bloats file size dramatically; it should be
+  a flag, not a default.

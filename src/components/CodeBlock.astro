@@ -1,0 +1,28 @@
+---
+// Wrapper that adds a copy button to a pre/code block.
+// Usage: wrap MDX code fences — Shiki handles syntax highlighting at build time.
+// The copy button is plain JS, no framework.
+---
+
+<div class="relative group my-6">
+  <slot />
+  <button
+    class="copy-btn absolute top-3 right-3 text-xs px-2.5 py-1 rounded border border-[var(--border)] bg-[var(--bg)] text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity hover:text-[var(--text)] hover:border-[var(--accent)]"
+    aria-label="Copy code"
+  >
+    Copy
+  </button>
+</div>
+
+<script is:inline>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.parentElement.querySelector('pre');
+      if (!pre) return;
+      navigator.clipboard.writeText(pre.innerText).then(function () {
+        btn.textContent = 'Copied!';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
+      });
+    });
+  });
+</script>

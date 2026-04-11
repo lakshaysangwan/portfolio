@@ -1,0 +1,58 @@
+---
+name: "Docukit"
+tagline: "A privacy-first PDF and image toolkit that runs entirely in your browser."
+stack: ["Astro", "React", "pdf-lib", "qpdf-wasm", "Cloudflare Pages"]
+status: "live"
+liveUrl: "https://docukit.uk"
+codeUrl: null
+featured: true
+draft: false
+---
+
+## What it does
+
+Merge, split, compress, and convert PDFs and images. Every operation
+runs client-side — no file ever leaves your browser. No server, no
+uploads, no tracking. You could pull the network cable after the page
+loads and every tool would still work.
+
+## Why I built it
+
+Most online PDF tools ship your documents to a server somewhere. If
+you're dealing with an ID card, a bank statement, or anything you'd
+rather not hand to a random SaaS, that's a problem. Browsers have been
+capable of doing all of this locally for years — the tools just hadn't
+caught up. So I built one.
+
+It was also a way to put Cloudflare's edge stack through its paces and
+learn Astro properly.
+
+## Stack & decisions
+
+**Astro + React islands.** Astro for the static shell, React only
+where interactivity is actually needed (the tool UIs). This keeps the
+homepage near-zero JS.
+
+**pdf-lib for most PDF operations.** Pure JavaScript, no WebAssembly
+overhead for the common cases.
+
+**qpdf-wasm for encryption.** This was the interesting decision.
+pdf-lib's encryption support had a subtle bug with certain PDF
+structures, which manifested as corrupted output on encrypted files.
+After a couple of days of debugging I switched encryption-only flows
+to qpdf compiled to WebAssembly. Slower to load, but correct.
+
+**Cloudflare Pages.** Static hosting, free tier, global edge.
+Deployment is `git push`.
+
+## What I learned
+
+- Picking the "popular" library isn't always right. pdf-lib is great
+  for 95% of what Docukit does. For the last 5% I needed something else,
+  and qpdf-wasm was only the right answer after the first answer failed.
+- Client-side-only as a marketing position actually resonates with
+  people. The "no uploads" line gets more clicks than any feature
+  description.
+- SEO for a utility site is its own discipline. Structured data,
+  sitemap submission, and tool-specific landing pages moved the needle
+  more than content marketing would have.

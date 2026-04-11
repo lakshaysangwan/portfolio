@@ -1,0 +1,105 @@
+---
+import Prose from '../layouts/Prose.astro';
+---
+
+<Prose
+  title="About"
+  description="Lakshay Sangwan — Product Engineer at Digiicampus. ~5 years building multi-tenant platform infrastructure."
+>
+  <h1 class="text-2xl sm:text-3xl font-semibold text-[var(--text)] leading-tight mb-6">
+    About
+  </h1>
+
+  <div class="prose">
+    <p>
+      I'm Lakshay Sangwan, a Product Engineer at Digiicampus based in Hisar,
+      India. I've spent the last ~5 years building multi-tenant platform
+      infrastructure — Java, Spring Boot, AWS, MySQL, Redis, and the usual
+      supporting cast — with enough end-to-end ownership that the work spans
+      infrastructure, architecture, security, and feature development.
+    </p>
+    <p>
+      Outside of work I build small things. A privacy-first PDF toolkit,
+      a habit tracker on Cloudflare's edge stack, a Lambda that emails me when
+      Barcelona match replays show up. Tools that scratch a specific itch and
+      then mostly stay running because they're simple enough not to break.
+    </p>
+
+    <h2>Experience</h2>
+
+    <div class="not-prose mb-6">
+      <div class="border-l-2 border-[var(--border)] pl-5 space-y-8">
+        <div>
+          <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-1">
+            <span class="font-semibold text-[var(--text)]">Digiicampus</span>
+            <span class="text-sm text-[var(--text-muted)]">Nov 2023 – Present · Remote (Bengaluru)</span>
+          </div>
+          <p class="text-sm text-[var(--text-muted)] m-0 mb-3">Product Engineer 2</p>
+          <ul class="text-sm text-[var(--text)] leading-relaxed space-y-2 m-0 pl-4 list-disc">
+            <li>Architected a <a href="/work/federated-sso-hub" class="text-[var(--accent)] hover:underline">federation hub</a> for cross-tenant account linking using union-find transitive closure and HMAC-signed JWTs.</li>
+            <li>Designed a <a href="/work/selfie-attendance-geofencing" class="text-[var(--accent)] hover:underline">selfie-based attendance system</a> with server-side geofencing and multi-layer timezone resolution.</li>
+            <li>Implemented <a href="/work/ff1-format-preserving-encryption" class="text-[var(--accent)] hover:underline">FF1 format-preserving encryption</a> for platform-wide ID obfuscation — zero schema changes.</li>
+            <li>Led <a href="/work/elasticache-audit" class="text-[var(--accent)] hover:underline">AWS infrastructure optimization</a>: audited 15+ ElastiCache clusters, upgraded Redis 6.2.6 → 7.1.0, right-sized instances, and cleaned up CloudFront distributions — <strong>$3,400+/year in savings</strong>.</li>
+            <li>Owned the Staff Attendance module end-to-end, replacing day-old Athena batch reports with real-time ElasticSearch sync.</li>
+            <li>Built reusable platform components adopted org-wide: global exception-handling advices, test frameworks for services and MySQL stored procedures, and centralized obfuscation utilities.</li>
+            <li>Shipped a Digital Student Passport with QR verification and a Support Help Centre with FAQ search.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-1">
+            <span class="font-semibold text-[var(--text)]">AuthBridge</span>
+            <span class="text-sm text-[var(--text-muted)]">June 2021 – Nov 2023 · Gurgaon</span>
+          </div>
+          <p class="text-sm text-[var(--text-muted)] m-0 mb-3">Software Engineer</p>
+          <ul class="text-sm text-[var(--text)] leading-relaxed space-y-2 m-0 pl-4 list-disc">
+            <li>Built core verification microservices for PAN and Aadhaar checks — critical dependencies for the company's flagship background verification product, processing high-volume identity checks.</li>
+            <li>Designed an automated data inflow system for the operations team that cut developer intervention to zero, increased web scraping throughput 5×, and moved compute requirements from enterprise servers down to consumer-grade hardware.</li>
+            <li>Built internal tools for data extraction, validation pipelines, and batch processing workflows.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h2>Education</h2>
+    <p>
+      <strong>B.Tech, Computer Science Engineering</strong><br />
+      UIET, Kurukshetra University · May 2021
+    </p>
+
+    <h2>Skills</h2>
+
+    <div class="not-prose">
+      <dl class="space-y-2 text-sm">
+        {[
+          ['Languages', 'Java, JavaScript, SQL, HTML/CSS'],
+          ['Backend', 'Spring Boot, Hibernate (JPA), REST APIs, microservices'],
+          ['Frontend', 'AngularJS, React'],
+          ['Databases', 'MySQL, Redis / ElastiCache, ElasticSearch'],
+          ['Cloud & infra', 'AWS (EC2, Lambda, ElastiCache, CloudFront, ALB, SQS, Athena), Cloudflare (Workers, Pages, D1)'],
+          ['Tools', 'Git, Linux, Bash'],
+        ].map(([label, value]) => (
+          <div class="flex gap-3">
+            <dt class="font-medium text-[var(--text)] whitespace-nowrap min-w-[120px]">{label}</dt>
+            <dd class="text-[var(--text-muted)] m-0">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+
+    <h2>Contact</h2>
+    <ul>
+      <li>
+        Email — <a href="mailto:lakshay.ib.hisar@gmail.com">lakshay.ib.hisar@gmail.com</a>
+      </li>
+      <li>
+        GitHub — <a href="https://github.com/lakshaysangwan" target="_blank" rel="noopener noreferrer">lakshaysangwan</a>
+      </li>
+      <li>
+        LinkedIn — <a href="https://linkedin.com/in/lakshaysangwaan" target="_blank" rel="noopener noreferrer">lakshaysangwaan</a>
+      </li>
+      <li>
+        Résumé — <a href="/resume.pdf" download>download PDF</a>
+      </li>
+    </ul>
+  </div>
+</Prose>

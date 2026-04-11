@@ -1,0 +1,41 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-[var(--border)] mt-20">
+  <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[var(--text-muted)]">
+    <p class="m-0">© {year} Lakshay Sangwan</p>
+    <nav aria-label="Footer links">
+      <ul class="flex items-center gap-4 list-none m-0 p-0" role="list">
+        <li>
+          <a
+            href="https://github.com/lakshaysangwan"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-[var(--text)] transition-colors"
+          >
+            GitHub
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://linkedin.com/in/lakshaysangwaan"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-[var(--text)] transition-colors"
+          >
+            LinkedIn
+          </a>
+        </li>
+        <li>
+          <a
+            href="mailto:lakshay.ib.hisar@gmail.com"
+            class="hover:text-[var(--text)] transition-colors"
+          >
+            Email
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</footer>

@@ -1,0 +1,17 @@
+---
+interface Props {
+  /** Short impact label, e.g. "$3,400+/yr saved" */
+  impact: string;
+}
+
+const { impact } = Astro.props;
+---
+
+<div class="my-8 border border-[var(--accent)] rounded-lg p-5 bg-[var(--bg-subtle)]">
+  <p class="text-xs font-semibold uppercase tracking-wider text-[var(--accent)] m-0 mb-1">
+    Impact
+  </p>
+  <p class="text-lg font-semibold text-[var(--text)] m-0">
+    {impact}
+  </p>
+</div>
