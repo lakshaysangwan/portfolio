@@ -137,6 +137,33 @@ body {
   margin: 0 0 1.25em;
 }
 
+.prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-bottom: 1.5em;
+}
+
+.prose th,
+.prose td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.5em 0.75em;
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.prose td:first-child {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .prose hr {
   border: none;
   border-top: 1px solid var(--border);

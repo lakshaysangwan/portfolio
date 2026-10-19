@@ -1,0 +1,153 @@
+---
+title: "A staff-appraisal engine with KPIs that score themselves"
+description: "Built a configurable performance-appraisal engine inside a multi-tenant Spring Boot monolith — policies, cycles, multi-reviewer scoring, and KPIs computed from live data in other modules."
+date: 2026-06-01
+role: "Product Engineer"
+timeframe: "Apr – Oct 2026"
+stack: ["Java", "Spring Boot", "MySQL", "Redis", "AWS SQS", "React", "Playwright"]
+teamSize: 1
+category: "product"
+impact: "Self-scoring KPIs from 6 modules, ~975 tests"
+featured: true
+draft: false
+---
+
+## Context
+
+Institutions appraise their staff on KPIs, with self, manager and peer
+reviews over cycles that run all year. Doing it by hand is slow,
+inconsistent and easy to game.
+
+I owned the appraisal module end to end — product questions, design,
+database, backend, frontend, E2E QA and deployment. The backend was
+built from April to June 2026 and the frontend through October. It ships
+behind a per-institution feature flag.
+
+## Problem
+
+The goal was for an admin to define the policy once and have the system
+run the cycle: who is included, who reviews whom, when each window
+opens, reminders, and the final score.
+
+That makes it less a set of forms and more a state machine. Cycles open,
+pause, close and archive; reviews move through sequential or parallel
+stages; people join and leave the roster mid-cycle; reviewers miss
+deadlines. Every one of those transitions changes someone's final score,
+so the rules have to be exact and the results have to stay stable once
+a cycle closes.
+
+## Approach
+
+**Policies.** KPIs with configurable rating types, evidence and remark
+rules. Weightage is set per reviewer type and can be overridden per KPI
+and per reviewer. Rating scales are validated, and policies have a full
+lifecycle (draft, active, archived).
+
+**Cycles.** Draft, activate, freeze/resume (a reversible pause), close
+and archive. Sub-cycles run on cadences, with review windows driven by a
+daily scheduled job, publish dates with auto-close, and
+copy-from-previous with a roster-diff confirmation.
+
+**Rule-based roster.** AND/OR eligibility rules with a live preview,
+cross-cycle overlap detection, and override, exclude and reinstate with
+mandatory reasons. Resync shows a preview first and is guarded by
+optimistic version checks.
+
+**Reviews.** Self, manager and peer stages, run sequentially or in
+parallel, with drafts, submit, and send-back with revision history.
+Reviewers can attach evidence, be reassigned or skipped, and work from a
+workload view and a pending-reviews queue. How much of the reviewer
+scores the employee sees is configurable.
+
+**Scoring.** Tiered auto-finalize and force-finalize. Missed reviews are
+excluded and the remaining weights renormalized, rather than counted as
+zeros. Threshold bands map scores to rating labels.
+
+**Self-scoring KPIs.** Some KPIs are system metrics, computed from
+attendance, leave, student feedback, gradebook, classroom teaching
+completion and exams.
+
+Around that sit 15 lifecycle email notifications, a staff UI in React
+(~140 files: 17 routes, 14 pages, 21 modals), and a small bridge into the
+legacy AngularJS portal.
+
+## Implementation
+
+The module lives inside the large multi-tenant monolith: Java 8, Spring
+Boot, JdbcTemplate and MySQL, with ~25 dedicated tables and Flyway
+migrations, plus Redis and SQS-delivered scheduled jobs.
+
+**Snapshots.** It's a layered domain package — entities, DAOs, services
+and controllers. Cycle-scoped snapshots of the policy and KPI tables
+mean that editing a policy never changes a running cycle.
+
+**Async lifecycle.** Activation and close do a fast synchronous
+validation. The heavy work — roster generation, scoring tiers, metric
+snapshots — then runs in async event listeners off the request thread.
+
+**Pluggable metrics.** Any module can expose a KPI by adding one provider
+bean. Its value contract drives the admin wizard's input, validation,
+preview and the frozen snapshot. Values are snapshotted at close, so
+later data edits cannot move a closed appraisal.
+
+**Tenancy and gating.** Every query is tenant-routed. A feature-flag
+interceptor refuses all endpoints for institutions without the module,
+before any privilege check runs.
+
+## The hardest parts
+
+**"A zero lies."** On a lower-is-better metric such as leave days,
+someone outside that module's policy would score perfectly. I added
+per-employee coverage checks: uncovered metrics are marked *not
+applicable* and their weight is renormalized. An activation preflight
+warns the admin up front, and the checks fail open so a gap never blocks
+a cycle.
+
+**Scoring correctness.** Missed reviews redistribute weight instead of
+injecting zeros. Threshold bands moved to inclusive `[min, max]` ranges
+after a boundary bug. Half-day attendance counts as 0.5, and leave
+counting was aligned with the leave module's own status semantics.
+
+**Hardening a complex state machine.** Cycle, policy, review-stage,
+auto-finalize and revision rules were pulled out into pure resolver
+classes and covered by truth-table tests. This is where most of the ~975
+unit tests come from. QA-found gaps were then fixed one at a time
+against those tests.
+
+**Multi-instance reminders.** An in-memory dedupe map would send
+duplicate reminders after a restart or from a second pod. I moved it to
+a per-cycle Redis cooldown.
+
+**Concurrency and N+1.** I made the "already in an active cycle"
+insertion guard race-safe. N+1 queries in cycle listing, reminder
+dispatch and close-time scoring were collapsed into bulk reads, and
+non-sargable SQL was rewritten using a denormalized cycle id.
+
+**Time zones.** The servers run in UTC, but institutions run in IST. All
+timestamps and scheduled jobs go through a college-local time service,
+because a naive "now" is a day early before 05:30 IST.
+
+## Impact
+
+The module is shipped behind a per-institution feature flag. KPIs can be
+computed from six other modules, and any further module can add one by
+adding a single provider bean.
+
+| Area | Size (rounded) |
+|---|---|
+| Backend | ~310 Java files, 11 controllers, 93 REST endpoints |
+| Database | ~25 tables, 31 migrations |
+| Unit tests | ~975 test cases across 83 test classes |
+| E2E | ~165 Playwright tests across 12 spec files |
+| Frontend | ~140 React files, 185 frontend commits |
+
+I also pruned as I went. Front-end-to-back-end call audits found 22 dead
+DAO methods, dead endpoints and a whole unused bulk-upload pipeline, and
+I deleted them rather than maintain them.
+
+## What I'd carry forward
+
+Treat a missing value as *not applicable*, never as zero — on a
+lower-is-better metric, a zero quietly becomes a perfect score. And pull
+state-machine rules into pure resolvers with truth-table tests early;
+that's what made the QA-found gaps cheap to fix one at a time.

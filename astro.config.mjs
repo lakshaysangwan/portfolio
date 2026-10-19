@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  site: 'https://TODO-domain.com', // update before M5
+  site: 'https://lakshaysangwan.dev',
   output: 'static',
   integrations: [mdx(), sitemap()],
   build: {

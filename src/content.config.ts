@@ -11,7 +11,7 @@ const work = defineCollection({
     timeframe: z.string(),
     stack: z.array(z.string()),
     teamSize: z.number(),
-    category: z.enum(['infra', 'security', 'architecture', 'feature']),
+    category: z.enum(['product', 'infra', 'security', 'architecture', 'feature']),
     impact: z.string(),
     featured: z.boolean(),
     draft: z.boolean(),
