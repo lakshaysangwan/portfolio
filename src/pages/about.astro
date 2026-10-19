@@ -4,7 +4,7 @@ import Prose from '../layouts/Prose.astro';
 
 <Prose
   title="About"
-  description="Lakshay Sangwan — Product Engineer at Digiicampus. ~5 years building multi-tenant platform infrastructure."
+  description="Lakshay Sangwan, Product Engineer at Digiicampus. ~5 years building multi-tenant platform infrastructure."
 >
   <h1 class="text-2xl sm:text-3xl font-semibold text-[var(--text)] leading-tight mb-6">
     About
@@ -14,8 +14,8 @@ import Prose from '../layouts/Prose.astro';
     <p>
       I'm Lakshay Sangwan, a Product Engineer at Digiicampus based in Hisar,
       India. I've spent the last ~5 years building multi-tenant platform
-      infrastructure — Java, Spring Boot, AWS, MySQL, Redis, and the usual
-      supporting cast — with enough end-to-end ownership that the work spans
+      infrastructure (Java, Spring Boot, AWS, MySQL, Redis, and the usual
+      supporting cast) with enough end-to-end ownership that the work spans
       infrastructure, architecture, security, and feature development.
     </p>
     <p>
@@ -32,16 +32,16 @@ import Prose from '../layouts/Prose.astro';
         <div>
           <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-1">
             <span class="font-semibold text-[var(--text)]">Digiicampus</span>
-            <span class="text-sm text-[var(--text-muted)]">Nov 2023 – Present · Remote (Bengaluru)</span>
+            <span class="text-sm text-[var(--text-muted)]">Nov 2023 to Present · Remote (Bengaluru)</span>
           </div>
           <p class="text-sm text-[var(--text-muted)] m-0 mb-3">Product Engineer 2</p>
           <ul class="text-sm text-[var(--text)] leading-relaxed space-y-2 m-0 pl-4 list-disc">
-            <li>Built and own a <a href="/work/faculty-recruitment-platform" class="text-[var(--accent)] hover:underline">faculty-recruitment platform</a> end to end — a new Java 25 / Spring Boot 4 microservice with a public candidate portal, panel scoring, offers and HRMS handoff — shipped to QA in ~4 weeks.</li>
+            <li>Built and own a <a href="/work/faculty-recruitment-platform" class="text-[var(--accent)] hover:underline">faculty-recruitment platform</a> end to end: a new Java 25 / Spring Boot 4 microservice with a public candidate portal, panel scoring, offers and HRMS handoff, shipped to QA in ~4 weeks.</li>
             <li>Built a <a href="/work/staff-appraisal-engine" class="text-[var(--accent)] hover:underline">staff-appraisal engine</a> inside the multi-tenant monolith: rule-based rosters, multi-reviewer scoring, and pluggable KPIs computed from attendance, leave, gradebook and exam data.</li>
             <li>Architected a <a href="/work/federated-sso-hub" class="text-[var(--accent)] hover:underline">federation hub</a> for cross-tenant account linking using union-find transitive closure and HMAC-signed JWTs.</li>
             <li>Designed a <a href="/work/selfie-attendance-geofencing" class="text-[var(--accent)] hover:underline">selfie-based attendance system</a> with server-side geofencing and multi-layer timezone resolution.</li>
-            <li>Implemented <a href="/work/ff1-format-preserving-encryption" class="text-[var(--accent)] hover:underline">FF1 format-preserving encryption</a> for platform-wide ID obfuscation — zero schema changes.</li>
-            <li>Led <a href="/work/elasticache-audit" class="text-[var(--accent)] hover:underline">AWS infrastructure optimization</a>: audited 15+ ElastiCache clusters, upgraded Redis 6.2.6 → 7.1.0, right-sized instances, and cleaned up CloudFront distributions — <strong>$3,400+/year in savings</strong>.</li>
+            <li>Implemented <a href="/work/ff1-format-preserving-encryption" class="text-[var(--accent)] hover:underline">FF1 format-preserving encryption</a> for platform-wide ID obfuscation with zero schema changes.</li>
+            <li>Led <a href="/work/elasticache-audit" class="text-[var(--accent)] hover:underline">AWS infrastructure optimization</a>: audited 15+ ElastiCache clusters, upgraded Redis 6.2.6 → 7.1.0, right-sized instances, and cleaned up CloudFront distributions, for <strong>$3,400+/year in savings</strong>.</li>
             <li>Owned the Staff Attendance module end-to-end, replacing day-old Athena batch reports with real-time ElasticSearch sync.</li>
             <li>Built reusable platform components adopted org-wide: global exception-handling advices, test frameworks for services and MySQL stored procedures, and centralized obfuscation utilities.</li>
             <li>Shipped a Digital Student Passport with QR verification and a Support Help Centre with FAQ search.</li>
@@ -50,11 +50,11 @@ import Prose from '../layouts/Prose.astro';
         <div>
           <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-1">
             <span class="font-semibold text-[var(--text)]">AuthBridge</span>
-            <span class="text-sm text-[var(--text-muted)]">June 2021 – Nov 2023 · Gurgaon</span>
+            <span class="text-sm text-[var(--text-muted)]">June 2021 to Nov 2023 · Gurgaon</span>
           </div>
           <p class="text-sm text-[var(--text-muted)] m-0 mb-3">Software Engineer</p>
           <ul class="text-sm text-[var(--text)] leading-relaxed space-y-2 m-0 pl-4 list-disc">
-            <li>Built core verification microservices for PAN and Aadhaar checks — critical dependencies for the company's flagship background verification product, processing high-volume identity checks.</li>
+            <li>Built core verification microservices for PAN and Aadhaar checks, critical dependencies for the company's flagship background verification product, processing high-volume identity checks.</li>
             <li>Designed an automated data inflow system for the operations team that cut developer intervention to zero, increased web scraping throughput 5×, and moved compute requirements from enterprise servers down to consumer-grade hardware.</li>
             <li>Built internal tools for data extraction, validation pipelines, and batch processing workflows.</li>
           </ul>
@@ -73,7 +73,7 @@ import Prose from '../layouts/Prose.astro';
     <div class="not-prose">
       <dl class="space-y-2 text-sm">
         {[
-          ['Languages', 'Java (8 – 25), JavaScript, TypeScript, SQL, HTML/CSS'],
+          ['Languages', 'Java (8 to 25), JavaScript, TypeScript, SQL, HTML/CSS'],
           ['Backend', 'Spring Boot (up to 4.x), Hibernate (JPA), REST APIs, microservices, Thymeleaf'],
           ['Frontend', 'React, Vite, Ant Design, AngularJS'],
           ['Databases', 'MySQL, PostgreSQL, Redis / ElastiCache, ElasticSearch'],
@@ -92,16 +92,16 @@ import Prose from '../layouts/Prose.astro';
     <h2>Contact</h2>
     <ul>
       <li>
-        Email — <a href="mailto:lakshay.ib.hisar@gmail.com">lakshay.ib.hisar@gmail.com</a>
+        Email: <a href="mailto:lakshay.ib.hisar@gmail.com">lakshay.ib.hisar@gmail.com</a>
       </li>
       <li>
-        GitHub — <a href="https://github.com/lakshaysangwan" target="_blank" rel="noopener noreferrer">lakshaysangwan</a>
+        GitHub: <a href="https://github.com/lakshaysangwan" target="_blank" rel="noopener noreferrer">lakshaysangwan</a>
       </li>
       <li>
-        LinkedIn — <a href="https://linkedin.com/in/lakshaysangwaan" target="_blank" rel="noopener noreferrer">lakshaysangwaan</a>
+        LinkedIn: <a href="https://linkedin.com/in/lakshaysangwaan" target="_blank" rel="noopener noreferrer">lakshaysangwaan</a>
       </li>
       <li>
-        Résumé — <a href="/resume.pdf" download>download PDF</a>
+        Résumé: <a href="/resume.pdf" download>download PDF</a>
       </li>
     </ul>
   </div>

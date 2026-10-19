@@ -1,9 +1,9 @@
 ---
 title: "A faculty-recruitment platform, built as a new Spring Boot 4 microservice"
-description: "Built end-to-end faculty hiring for colleges — job posting, application, scoring, approval, offer and onboarding handoff — as a new service with its own public candidate portal."
+description: "Built end-to-end faculty hiring for colleges (job posting, application, scoring, approval, offer and onboarding handoff) as a new service with its own public candidate portal."
 date: 2026-10-01
 role: "Product Engineer"
-timeframe: "Sep – Oct 2026"
+timeframe: "Sep to Oct 2026"
 stack: ["Java 25", "Spring Boot 4", "PostgreSQL", "React 19", "TypeScript", "AWS ECS", "Playwright"]
 teamSize: 1
 category: "product"
@@ -67,9 +67,9 @@ configuration, so later edits never change a live posting.
   throttling.
 - **Screening and shortlisting** with verification checklists,
   field-level comments and unlocks, rescreening, weighted merit scoring
-  (0–100), and rank overrides with freeze and approval.
+  (0 to 100), and rank overrides with freeze and approval.
 - **Selection rounds** built from workflow templates, rounds, parameters
-  and weighted evaluators, with 1–5 scorecards, derived means at every
+  and weighted evaluators, with 1 to 5 scorecards, derived means at every
   level, alternate promotion and final-approval panels.
 - **External evaluators** who score candidates through magic-link
   sessions, with no account in the core product.
@@ -187,6 +187,6 @@ architect, reviewer and owner of every decision.
 ## What I'd carry forward
 
 Diff the resolved BOM on every framework upgrade, not just the declared
-versions — a green build says nothing about what actually loads at
+versions. A green build says nothing about what actually loads at
 startup. And when local data makes two ids look identical, check the
 mapping against real data shapes before trusting a passing test suite.

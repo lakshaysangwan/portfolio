@@ -15,11 +15,11 @@ draft: false
 ## Context
 
 Digiicampus runs each institution as an isolated tenant. That isolation
-is the product — institutions own their data, their branding, their
-user base. But real users cross boundaries. A student who transfers from
+is the product: institutions own their data, their branding, their
+user base. But real users cross boundaries: a student who transfers from
 one affiliated college to another, a faculty member who teaches at two
-institutions, an alum who becomes a guest lecturer somewhere else —
-these people need a way to reach their data without creating a new
+institutions, an alum who becomes a guest lecturer somewhere else.
+These people need a way to reach their data without creating a new
 account and losing history.
 
 The question: how do you link identities across strictly isolated
@@ -27,7 +27,7 @@ tenants without punching holes in the isolation?
 
 ## Problem
 
-A naive approach — a shared users table — defeats the point of
+A naive approach (a shared users table) defeats the point of
 multi-tenancy. A federation protocol like SAML or OIDC between every
 pair of tenants scales quadratically and doesn't compose when users
 belong to three or more tenants.
@@ -40,7 +40,7 @@ I needed a design where:
    A = C).
 3. No tenant can forge a link claim on behalf of another tenant.
 4. Cache invalidation propagates correctly when links change.
-5. The link graph is queryable efficiently — "give me all accounts
+5. The link graph is queryable efficiently: "give me all accounts
    connected to this one" should be O(α(n)) in the common case.
 
 ## Approach
@@ -78,15 +78,15 @@ changes rarely and reads are hot.
 
 The hub exposes three primary endpoints:
 
-- `POST /links` — assert a link between two account references.
-- `DELETE /links/{id}` — break a link (this is the interesting one —
+- `POST /links`: assert a link between two account references.
+- `DELETE /links/{id}`: break a link (this is the interesting one:
   breaking a link in a union-find means rebuilding the affected set).
-- `GET /linked/{accountRef}` — return all accounts transitively linked.
+- `GET /linked/{accountRef}`: return all accounts transitively linked.
 
 The break operation is O(n) in the size of the connected component
-because union-find doesn't natively support deletion — you rebuild the
+because union-find doesn't natively support deletion; you rebuild the
 component from the remaining edges. In practice, components are small
-(usually 2–4 accounts), so this is fine. If it ever isn't, the fallback
+(usually 2 to 4 accounts), so this is fine. If it ever isn't, the fallback
 is link-cut trees, but that's premature.
 
 Tenant-side integration is a thin client library that wraps the HMAC
@@ -97,7 +97,7 @@ secret, registering with the hub, and pulling in the library.
 
 - Users with identities on multiple tenants experience a single
   continuous history.
-- Tenant isolation is preserved — no tenant can read another's user
+- Tenant isolation is preserved: no tenant can read another's user
   data; they can only assert and query links.
 - The hub is the only service that knows about the link graph; tenants
   stay blissfully unaware of each other's user tables.

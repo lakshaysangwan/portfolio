@@ -23,7 +23,7 @@ const {
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = new URL(ogImage, Astro.site);
 const siteName = 'Lakshay Sangwan';
-const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
+const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
 ---
 
 <!doctype html>

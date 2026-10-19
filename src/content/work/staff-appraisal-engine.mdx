@@ -1,9 +1,9 @@
 ---
 title: "A staff-appraisal engine with KPIs that score themselves"
-description: "Built a configurable performance-appraisal engine inside a multi-tenant Spring Boot monolith — policies, cycles, multi-reviewer scoring, and KPIs computed from live data in other modules."
+description: "Built a configurable performance-appraisal engine inside a multi-tenant Spring Boot monolith: policies, cycles, multi-reviewer scoring, and KPIs computed from live data in other modules."
 date: 2026-06-01
 role: "Product Engineer"
-timeframe: "Apr – Oct 2026"
+timeframe: "Apr to Oct 2026"
 stack: ["Java", "Spring Boot", "MySQL", "Redis", "AWS SQS", "React", "Playwright"]
 teamSize: 1
 category: "product"
@@ -18,7 +18,7 @@ Institutions appraise their staff on KPIs, with self, manager and peer
 reviews over cycles that run all year. Doing it by hand is slow,
 inconsistent and easy to game.
 
-I owned the appraisal module end to end — product questions, design,
+I owned the appraisal module end to end: product questions, design,
 database, backend, frontend, E2E QA and deployment. The backend was
 built from April to June 2026 and the frontend through October. It ships
 behind a per-institution feature flag.
@@ -77,13 +77,13 @@ The module lives inside the large multi-tenant monolith: Java 8, Spring
 Boot, JdbcTemplate and MySQL, with ~25 dedicated tables and Flyway
 migrations, plus Redis and SQS-delivered scheduled jobs.
 
-**Snapshots.** It's a layered domain package — entities, DAOs, services
-and controllers. Cycle-scoped snapshots of the policy and KPI tables
+**Snapshots.** It's a layered domain package (entities, DAOs, services
+and controllers). Cycle-scoped snapshots of the policy and KPI tables
 mean that editing a policy never changes a running cycle.
 
 **Async lifecycle.** Activation and close do a fast synchronous
-validation. The heavy work — roster generation, scoring tiers, metric
-snapshots — then runs in async event listeners off the request thread.
+validation. The heavy work (roster generation, scoring tiers, metric
+snapshots) then runs in async event listeners off the request thread.
 
 **Pluggable metrics.** Any module can expose a KPI by adding one provider
 bean. Its value contract drives the admin wizard's input, validation,
@@ -147,7 +147,7 @@ I deleted them rather than maintain them.
 
 ## What I'd carry forward
 
-Treat a missing value as *not applicable*, never as zero — on a
+Treat a missing value as *not applicable*, never as zero. On a
 lower-is-better metric, a zero quietly becomes a perfect score. And pull
 state-machine rules into pure resolvers with truth-table tests early;
 that's what made the QA-found gaps cheap to fix one at a time.
