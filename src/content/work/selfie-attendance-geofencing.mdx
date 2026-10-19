@@ -46,7 +46,7 @@ always show up in real deployments:
 **For location:** server-side geofence validation. The client sends
 current coordinates; the server checks them against the assigned
 location's polygon. The client is not trusted to say "I'm at the right
-place" — only to submit coordinates the server then validates.
+place," only to submit coordinates the server then validates.
 
 **For time:** the server stamps the record with its own clock, not the
 client's. The client sends a request; the server's ingress timestamp is
@@ -57,7 +57,7 @@ separately as metadata for audit, never used for business logic.
 timezone if the check-in is inside one. Otherwise, fall back to the
 tenant's home timezone. Otherwise, use the request's inferred timezone
 from its IP. This matters for "was this check-in within the valid
-window for today's class?" — the answer depends on which day you're in.
+window for today's class?" The answer depends on which day you're in.
 
 **For identity:** a selfie captured at check-in time, stored with the
 record. Automated comparison against the user's profile photo is a
@@ -78,13 +78,13 @@ coordinates, client timestamp, selfie image. The server:
 6. Writes the attendance row with both server and client timestamps.
 
 The image upload is the slow step. I kept the database write synchronous
-and the S3 upload asynchronous — the user sees success as soon as the
+and the S3 upload asynchronous: the user sees success as soon as the
 row is committed; the image is backfilled by a worker. If the upload
 fails, the record is flagged for review, not lost.
 
 ## Impact
 
-- Device clock manipulation is no longer a valid attack vector — the
+- Device clock manipulation is no longer a valid attack vector because the
   server's clock is authoritative.
 - Location spoofing requires defeating OS-level GPS, which is a much
   higher bar than editing a request body.

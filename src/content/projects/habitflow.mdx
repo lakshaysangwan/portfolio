@@ -44,8 +44,8 @@ Migrations feel like code, not like magic.
 **React + Vite frontend, shadcn/ui components.** Boring is good. No
 custom design system for a side project.
 
-**Server-side-only timestamps.** Every time-based event — start a
-timer, stop a timer, mark complete — is stamped by the server, not the
+**Server-side-only timestamps.** Every time-based event (start a
+timer, stop a timer, mark complete) is stamped by the server, not the
 client. This is non-negotiable for a habit tracker. If the client could
 write "I meditated yesterday," streaks become meaningless.
 
@@ -54,7 +54,7 @@ write "I meditated yesterday," streaks become meaningless.
 - D1's free tier is more than enough for personal apps, but the
   eventually-consistent read replicas matter once you cross regions.
 - The server-side-timestamp rule is simple to state and subtly annoying
-  to enforce — every client action has to round-trip before the UI can
+  to enforce: every client action has to round-trip before the UI can
   update, which means optimistic UI needs careful rollback.
 - Three tracking modes was the right call. I'd have been tempted to
   start with one and "add the others later," but the data model is

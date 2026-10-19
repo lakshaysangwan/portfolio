@@ -15,7 +15,7 @@ draft: false
 ## Context
 
 Digiicampus runs 15+ ElastiCache Redis clusters across production
-environments. They'd grown organically over years — each new module
+environments. They'd grown organically over years: each new module
 that needed caching got its own cluster, sized at launch based on
 guesses about load. Nobody had looked at the whole fleet in one pass.
 
@@ -35,19 +35,19 @@ The audit had to answer:
 
 Without a baseline of per-cluster CPU, memory, key count, and eviction
 rate over a long enough window to smooth out daily/weekly cycles, any
-"fix" would be guesswork. And the cost of being wrong is real — a
+"fix" would be guesswork. And the cost of being wrong is real. A
 downsized cluster that can't handle a Monday morning spike is a
 production incident.
 
 ## Approach
 
 **Phase 1: Measurement.** Pulled CloudWatch metrics for every cluster
-over a 30-day window — CPU utilization, memory usage, evicted keys,
+over a 30-day window: CPU utilization, memory usage, evicted keys,
 network bytes in/out, connected clients. Cross-referenced with the
 instance type's published limits to compute headroom.
 
 **Phase 2: Version upgrades.** Every cluster on 6.2.6 went to 7.1.0 in
-a rolling upgrade. This is the safe win — no cost from downsizing, just
+a rolling upgrade. This is the safe win: no cost from downsizing, just
 avoiding the future Extended Support premium.
 
 **Phase 3: Right-sizing.** Clusters with sustained CPU well under 10%
@@ -61,7 +61,7 @@ for Redis anti-patterns. Two showed up:
 
 - `@CacheEvict(allEntries = true)` on high-traffic methods, blowing away
   entire caches instead of targeted evictions.
-- Raw `KEYS` commands used for cleanup — O(n) blocking operations in
+- Raw `KEYS` commands used for cleanup, O(n) blocking operations in
   a production hot path.
 
 ## Implementation
@@ -71,7 +71,7 @@ at every step. ElastiCache's in-place upgrade worked cleanly for the
 7.x move; no client code changes required.
 
 Right-sizing was executed one cluster at a time, with a 48-hour
-observation window after each change. Nothing was batched — batching
+observation window after each change. Nothing was batched, since batching
 would make rollback harder and hide which change caused any regression.
 
 The anti-pattern fixes went in as separate PRs, tagged to the audit, so

@@ -1,6 +1,6 @@
 ---
 title: "FF1 format-preserving encryption for ID obfuscation"
-description: "Replaced sequential integer IDs across a multi-tenant platform with FF1-encrypted equivalents to prevent enumeration attacks — without breaking schemas or queries."
+description: "Replaced sequential integer IDs across a multi-tenant platform with FF1-encrypted equivalents to prevent enumeration attacks, without breaking schemas or queries."
 date: 2025-09-01
 role: "Product Engineer"
 timeframe: "2025"
@@ -15,7 +15,7 @@ draft: false
 ## Context
 
 Digiicampus is a multi-tenant platform serving educational institutions.
-Every resource — students, attendance records, courses, fee receipts — is
+Every resource (students, attendance records, courses, fee receipts) is
 identified by an auto-increment integer primary key. These IDs show up in
 URLs, API responses, and exported reports.
 
@@ -35,16 +35,16 @@ that is:
 4. **Query-compatible.** The encrypted form must round-trip cleanly at the service boundary.
 5. **Tenant-scoped.** Two tenants with the same internal ID must see different external IDs.
 
-UUIDs were ruled out — they would require touching every table, every
-foreign key, and every integration. Base64 of an HMAC was ruled out —
-not reversible. Simple XOR with a static key was ruled out — trivially
+UUIDs were ruled out: they would require touching every table, every
+foreign key, and every integration. Base64 of an HMAC was ruled out as
+not reversible. Simple XOR with a static key was ruled out as trivially
 breakable given a few known plaintext/ciphertext pairs.
 
 ## Approach
 
 I chose **FF1 (Format-Preserving Encryption)** from NIST SP 800-38G.
 FF1 is an AES-based cipher that encrypts values while preserving their
-domain — a 10-digit number encrypts to another 10-digit number, a
+domain: a 10-digit number encrypts to another 10-digit number, a
 hex-string to another hex-string of equal length. This meant:
 
 - No schema changes. IDs stay `BIGINT` in the database.
@@ -56,7 +56,7 @@ hex-string to another hex-string of equal length. This meant:
 
 - Master key stored in **AWS SSM Parameter Store** (SecureString).
 - Loaded once at application startup, cached in memory.
-- Tenant-specific tweaks derived from tenant ID — the same numeric ID
+- Tenant-specific tweaks derived from tenant ID, so the same numeric ID
   encrypts differently for each tenant. This is FF1's native mechanism
   for domain separation; no key-per-tenant required.
 
@@ -71,19 +71,19 @@ hex-string to another hex-string of equal length. This meant:
 
 ## Implementation
 
-The trickiest parts weren't the crypto — they were the edges:
+The trickiest parts weren't the crypto. They were the edges:
 
 - **Legacy endpoints** that accepted raw integer IDs had to keep working
   during the rollout. I supported both encrypted and raw forms at ingress
   for a grace period, with a flag to enforce encrypted-only later.
-- **Bulk export flows** (CSV reports, Athena queries) needed care —
+- **Bulk export flows** (CSV reports, Athena queries) needed care:
   some reports are consumed by internal systems that expect raw IDs,
   others by end users who should see encrypted forms. The serializer
   lives at the API boundary, so internal paths are unaffected.
 - **Foreign key joins** in reporting queries stayed untouched. The
   database never sees an encrypted ID.
 - **URL encoding.** FF1 output is numeric for numeric inputs, so URLs
-  stayed clean — no base64 padding, no special characters.
+  stayed clean: no base64 padding, no special characters.
 
 The rollout was incremental, one module at a time. Each module's
 controllers got the serializers, the API contract version bumped, and
@@ -93,7 +93,7 @@ the frontend clients updated in the same release.
 
 - Every outward-facing ID on the platform is now non-enumerable.
 - Zero database schema changes, zero primary key migrations.
-- The utility became a reusable building block — new modules get
+- The utility became a reusable building block: new modules get
   obfuscation "for free" by using the standard DTO serializers.
 - Auditable: the master key lives in SSM with IAM-controlled access,
   so rotation is a parameter update, not a code change.
