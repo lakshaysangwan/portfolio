@@ -1,0 +1,192 @@
+---
+title: "A faculty-recruitment platform, built as a new Spring Boot 4 microservice"
+description: "Built end-to-end faculty hiring for colleges — job posting, application, scoring, approval, offer and onboarding handoff — as a new service with its own public candidate portal."
+date: 2026-10-01
+role: "Product Engineer"
+timeframe: "Sep – Oct 2026"
+stack: ["Java 25", "Spring Boot 4", "PostgreSQL", "React 19", "TypeScript", "AWS ECS", "Playwright"]
+teamSize: 1
+category: "product"
+impact: "New service + candidate portal, shipped to QA in ~4 weeks"
+featured: true
+draft: false
+---
+
+## Context
+
+Colleges hire faculty through a long, approval-heavy process. A job
+posting is signed off by several people, applicants are screened for
+eligibility and ranked on merit, shortlisted candidates go through
+multi-round panel evaluations (often with external experts), and the
+result needs a final approval and an offer letter.
+
+All of this was happening over email and spreadsheets. I owned the product that replaces it end to end: product
+questions against the PRD, design docs, database design, backend,
+frontend, E2E QA and deployment.
+
+## Problem
+
+The platform had to run the whole hiring process in one system, with an
+audit trail, and give candidates a proper public careers site.
+
+That put two very different audiences on one product. Staff work inside
+the core Digiicampus product with existing accounts and privileges.
+Candidates are members of the public who have no account anywhere, and
+external evaluators are experts who score candidates without ever
+joining the core product. Each needed its own way in, without the public
+side becoming a path into tenant data.
+
+## Approach
+
+I split the work into four deliverables:
+
+- a **new backend microservice**
+- a **new candidate-facing web app**
+- a **recruitment module in the staff React console**
+- **integration changes in the core monolith**
+
+**Why a separate service.** The product can be sold on its own,
+candidate credentials stay out of the staff identity store, and the
+public attack surface is isolated from the tenant app.
+
+**Configuration that freezes on publish.** An opportunity wizard covers
+the job description, application form, eligibility rules, merit
+criteria, selection workflow and offer template. Each step is reviewed
+and approved by named owners, reviewers and approvers, with SLA
+reminders and send-back handling. Publishing freezes a snapshot of the
+configuration, so later edits never change a live posting.
+
+**The rest of the pipeline**, from application to hire:
+
+- **Application forms** built from sections, fields and options, with
+  per-field eligibility rules that flag ineligible applicants
+  automatically.
+- **Candidate portal** with self-registration and email verification,
+  profile and document uploads (each virus-scanned at upload),
+  server-side autosave, a consent gate and age check, and sign-in
+  throttling.
+- **Screening and shortlisting** with verification checklists,
+  field-level comments and unlocks, rescreening, weighted merit scoring
+  (0–100), and rank overrides with freeze and approval.
+- **Selection rounds** built from workflow templates, rounds, parameters
+  and weighted evaluators, with 1–5 scorecards, derived means at every
+  level, alternate promotion and final-approval panels.
+- **External evaluators** who score candidates through magic-link
+  sessions, with no account in the core product.
+- **Offers** from letter templates with merge fields and salary tables:
+  versioned, issued and withdrawn by staff, accepted or declined by the
+  candidate, and generated as PDF letters.
+- **HRMS handoff** that turns a hired candidate into a staff account in
+  the core product. The handoff is idempotent, locked and replay-safe.
+
+Everything writes to an activity and audit log, and about 19
+transactional emails are rendered with Thymeleaf and sent through the
+company's central notifications service.
+
+## Implementation
+
+**Stack.** The backend is Java 25, Spring Boot 4.1, JdbcClient and
+PostgreSQL. It was the company's first Spring Boot 4 service. The
+candidate portal is React 19, TypeScript, Vite and Ant Design; the staff
+side is a new module in the existing React console.
+
+**Multi-tenancy.** Each request resolves its college from the host it
+arrives on. Every table and every index leads with the college id. There
+is no default tenant, so a request with no resolvable college fails
+instead of leaking data.
+
+**Auth.**
+
+- Staff tokens are verified offline against a JWKS endpoint I added to
+  the monolith, so the service never holds signing material.
+- Candidates get their own service-issued sessions, kept entirely apart
+  from staff credentials.
+- Irreversible actions re-check the caller's privileges live and fail
+  closed.
+- Service-to-monolith calls are signed with HMAC.
+
+**Infra.** The service runs on AWS ECS behind CloudFront, with
+path-based routing on each tenant's own domain. GitHub Actions CI runs
+the service and portal test suites in parallel, with sharded frontend
+tests, before each deploy.
+
+## The hardest parts
+
+**Being first on Spring Boot 4 / Java 25.** Jackson 3 moved packages and
+is no longer pulled in transitively, `TestRestTemplate` is gone, and
+Actuator registers a second handler mapping. An error sent from a
+servlet filter re-dispatches through Spring Security and turns a 400
+into a 401. I worked through each one and wrote them down as upgrade
+notes for the teams that follow.
+
+**A dependency BOM silently downgrading the stack.** A third-party BOM
+outranked the Spring Boot parent and pinned 2020-era
+reactor/netty/micrometer. The build was green but the app died at
+startup. I traced it one boot at a time and turned it into a "diff the
+resolved BOM" checklist for upgrades.
+
+**Designing auth across two systems.** The design was reworked twice as
+the constraints surfaced: there was no service identity to borrow, and
+long-lived user tokens cannot be revoked. It ended as offline JWKS
+verification, a live privilege re-check before irreversible actions, and
+HMAC-signed service-to-service calls.
+
+**Multi-tenancy that tests couldn't catch.** Locally, the tenant id and
+the college id were the same number, so storing the wrong one would pass
+every test. I verified the mapping against real data shapes and made the
+college id the single discriminator.
+
+**Query performance.** I inventoried ~70 read routes and scanned ~200
+SQL statements with `EXPLAIN`. N+1 patterns were collapsed into
+set-based reads, and scoping one hot scan to the college cut the rows
+examined from ~12,000 to ~120.
+
+**E2E testing behind edge protection.** The Playwright suite was built
+as a permanent harness, with per-tenant personas, seeded data ladders
+and a run queue. Bursty parallel sign-ins tripped bot protection, so I
+paced the tests like real users instead of weakening the protection.
+
+## Impact
+
+The platform is built and shipped to QA; the production rollout is
+pending. In about 4 weeks it covered a new service, a new web app, a
+console module, monolith integration and a real-world E2E suite.
+
+| Area | Size (rounded) |
+|---|---|
+| Backend service | ~640 source files, 54 controllers, ~230 endpoints, 27 domain packages |
+| Database | 93 tables |
+| Backend tests | ~2,500 test cases across ~240 test classes |
+| Candidate portal | ~110 React components/pages, ~50 test files |
+| Staff console module | ~180 React components, 19 pages |
+| E2E QA suite | ~80 Playwright spec files across 31 functional areas |
+| Design docs | 23 design documents; 92 product questions resolved against the PRD before coding |
+| Commits | ~570 on the service, ~140 on the portal, ~270 on the console module |
+
+## How it was built
+
+I ran the build as an AI-agent engineering workflow, with me as
+architect, reviewer and owner of every decision.
+
+- **Coordinator and specialist agents.** A coordinator session planned
+  and delegated, and specialist coding agents worked in parallel git
+  worktrees: one each for the service, database, candidate portal and
+  staff console, plus an integration agent.
+- **Quality gates in the harness.** Custom commands for build,
+  pre-commit and handoff, and hooks that block wasteful or unsafe
+  actions (repeated identical test runs, code edits while the app is
+  live). A fix isn't done until a test fails without it, and all three
+  production builds must pass before a commit.
+- **Cost discipline.** Cheaper models do the mechanical work, agent
+  context is capped with sliced briefs, and daily handoff docs let a
+  fresh session pick up without re-deriving state.
+- **Design first.** I resolved 92 product questions against the PRD
+  before coding. The design docs record every ruling with dated
+  corrections, and HTML prototypes served as the binding UI spec.
+
+## What I'd carry forward
+
+Diff the resolved BOM on every framework upgrade, not just the declared
+versions — a green build says nothing about what actually loads at
+startup. And when local data makes two ids look identical, check the
+mapping against real data shapes before trusting a passing test suite.

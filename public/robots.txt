@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://TODO-domain.com/sitemap-index.xml
+Sitemap: https://lakshaysangwan.dev/sitemap-index.xml

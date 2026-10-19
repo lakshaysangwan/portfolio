@@ -36,6 +36,8 @@ import Prose from '../layouts/Prose.astro';
           </div>
           <p class="text-sm text-[var(--text-muted)] m-0 mb-3">Product Engineer 2</p>
           <ul class="text-sm text-[var(--text)] leading-relaxed space-y-2 m-0 pl-4 list-disc">
+            <li>Built and own a <a href="/work/faculty-recruitment-platform" class="text-[var(--accent)] hover:underline">faculty-recruitment platform</a> end to end — a new Java 25 / Spring Boot 4 microservice with a public candidate portal, panel scoring, offers and HRMS handoff — shipped to QA in ~4 weeks.</li>
+            <li>Built a <a href="/work/staff-appraisal-engine" class="text-[var(--accent)] hover:underline">staff-appraisal engine</a> inside the multi-tenant monolith: rule-based rosters, multi-reviewer scoring, and pluggable KPIs computed from attendance, leave, gradebook and exam data.</li>
             <li>Architected a <a href="/work/federated-sso-hub" class="text-[var(--accent)] hover:underline">federation hub</a> for cross-tenant account linking using union-find transitive closure and HMAC-signed JWTs.</li>
             <li>Designed a <a href="/work/selfie-attendance-geofencing" class="text-[var(--accent)] hover:underline">selfie-based attendance system</a> with server-side geofencing and multi-layer timezone resolution.</li>
             <li>Implemented <a href="/work/ff1-format-preserving-encryption" class="text-[var(--accent)] hover:underline">FF1 format-preserving encryption</a> for platform-wide ID obfuscation — zero schema changes.</li>
@@ -71,11 +73,12 @@ import Prose from '../layouts/Prose.astro';
     <div class="not-prose">
       <dl class="space-y-2 text-sm">
         {[
-          ['Languages', 'Java, JavaScript, SQL, HTML/CSS'],
-          ['Backend', 'Spring Boot, Hibernate (JPA), REST APIs, microservices'],
-          ['Frontend', 'AngularJS, React'],
-          ['Databases', 'MySQL, Redis / ElastiCache, ElasticSearch'],
-          ['Cloud & infra', 'AWS (EC2, Lambda, ElastiCache, CloudFront, ALB, SQS, Athena), Cloudflare (Workers, Pages, D1)'],
+          ['Languages', 'Java (8 – 25), JavaScript, TypeScript, SQL, HTML/CSS'],
+          ['Backend', 'Spring Boot (up to 4.x), Hibernate (JPA), REST APIs, microservices, Thymeleaf'],
+          ['Frontend', 'React, Vite, Ant Design, AngularJS'],
+          ['Databases', 'MySQL, PostgreSQL, Redis / ElastiCache, ElasticSearch'],
+          ['Cloud & infra', 'AWS (EC2, ECS, Lambda, ElastiCache, CloudFront, ALB, SQS, Athena), Cloudflare (Workers, Pages, D1)'],
+          ['Testing & CI', 'Playwright, GitHub Actions'],
           ['Tools', 'Git, Linux, Bash'],
         ].map(([label, value]) => (
           <div class="flex gap-3">

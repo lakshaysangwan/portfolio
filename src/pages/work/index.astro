@@ -6,7 +6,7 @@ import { getCollection } from 'astro:content';
 const entries = await getCollection('work', (e) => !e.data.draft);
 const sorted = entries.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-const categories = ['all', 'infra', 'security', 'architecture', 'feature'] as const;
+const categories = ['all', 'product', 'infra', 'security', 'architecture', 'feature'] as const;
 ---
 
 <Base
